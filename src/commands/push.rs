@@ -5,7 +5,8 @@ use std::{env, process::Command};
 use crate::{GlobalConfig, SiteConfig};
 
 pub fn push() -> anyhow::Result<()> {
-    let cwd = env::current_dir().map_err(|_| anyhow!("Could not get current directory"))?;
+    let cwd =
+        env::current_dir().map_err(|error| anyhow!("Could not get current directory: {error}"))?;
 
     let global_config_path = dirs::config_dir()
         .ok_or_else(|| anyhow!("Could not get config directory"))?
@@ -13,7 +14,7 @@ pub fn push() -> anyhow::Result<()> {
         .join("config.toml");
 
     let site_config_path = env::current_dir()
-        .map_err(|_| anyhow!("Could not get current directory"))?
+        .map_err(|error| anyhow!("Could not get current directory: {error}"))?
         .join("statico.toml");
 
     let global_config: GlobalConfig = toml::from_str(
@@ -25,7 +26,7 @@ pub fn push() -> anyhow::Result<()> {
 
     let site_config: SiteConfig = toml::from_str(
         std::fs::read_to_string(site_config_path)
-            .map_err(|_| anyhow!("Could not read site config."))?
+            .map_err(|error| anyhow!("Could not read site config: {error}"))?
             .as_ref(),
     )
     .map_err(|error| anyhow!("Could not parse site config: {error}"))?;
@@ -46,7 +47,7 @@ pub fn push() -> anyhow::Result<()> {
     let mut file_strings = Vec::new();
 
     for file in files {
-        let file = file.map_err(|_| anyhow!("Could not get file"))?;
+        let file = file.map_err(|error| anyhow!("Could not get file: {error}"))?;
         let path = file
             .to_str()
             .ok_or_else(|| anyhow!("Could not convert file path to string"))?

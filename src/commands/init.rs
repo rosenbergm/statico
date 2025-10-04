@@ -3,7 +3,8 @@ use anyhow::anyhow;
 use std::{env, fs};
 
 pub fn init() -> anyhow::Result<()> {
-    let cwd = env::current_dir().map_err(|_| anyhow!("Could not get current directory"))?;
+    let cwd =
+        env::current_dir().map_err(|error| anyhow!("Could not get current directory: {error}"))?;
     let config_path = cwd.join("statico_template.toml");
 
     if config_path.exists() {
@@ -13,7 +14,7 @@ pub fn init() -> anyhow::Result<()> {
     }
 
     fs::write(config_path, placeholders::EMPTY_SITE_CONFIG)
-        .map_err(|_| anyhow!("Could not write the initial config file"))?;
+        .map_err(|error| anyhow!("Could not write the initial config file: {error}"))?;
 
     Ok(())
 }
