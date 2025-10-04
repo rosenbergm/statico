@@ -1,0 +1,15 @@
+# IMPORTANT: Rename this to `config.toml` and place it in your config
+# directory in the `statico` directory. For example, on Linux, this
+# would be `~/.config/statico/config.toml`.
+
+[[servers]]
+
+# This is the alias of the server you will use in the site configuration to
+# refer to this server.
+alias = "main"
+
+# This is the name of the server (the host) in your SSH configuration.
+host = "main_server"
+
+# This is the common base of all the sites you will upload to this server.
+base_directory = "/srv/www"
