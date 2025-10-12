@@ -39,10 +39,17 @@ pub fn push() -> anyhow::Result<()> {
 
     let build_dir = cwd.join(&site_config.output_dir);
 
+    if !build_dir.exists() {
+        return Err(anyhow!(
+            "Build directory does not exist: {}",
+            build_dir.display()
+        ));
+    }
+
+    let final_path = server.base_directory.join(site_config.directory);
+
     #[expect(clippy::unwrap_used)]
     let files = glob::glob(format!("{}/*", build_dir.to_str().unwrap()).as_str()).unwrap();
-
-    let mut args = vec!["-r".to_string()];
 
     let mut file_strings = Vec::new();
 
@@ -55,10 +62,6 @@ pub fn push() -> anyhow::Result<()> {
 
         file_strings.push(path);
     }
-
-    args.extend(file_strings.clone());
-
-    let final_path = server.base_directory.join(site_config.directory);
 
     println!(
         "This will overwrite all data in {} and upload the following files:\n\n{}\n\n",
@@ -76,18 +79,21 @@ pub fn push() -> anyhow::Result<()> {
         return Err(anyhow!("Aborted."));
     }
 
-    args.push(format!("{}:{}", server.host, final_path.to_string_lossy()));
+    let source = format!("{}/", build_dir.to_string_lossy());
+    let destination = format!("{}:{}", server.host, final_path.to_string_lossy());
 
-    let mut child = Command::new("scp")
+    let args = vec!["-avz", &source, &destination];
+
+    let mut child = Command::new("rsync")
         .args(args)
         .spawn()
-        .map_err(|error| anyhow!("Unable to run `scp`: {error}"))?;
+        .map_err(|error| anyhow!("Unable to run `rsync`: {error}"))?;
 
     println!("Working...");
 
     child
         .wait()
-        .map_err(|error| anyhow!("`scp` command failed: {error}"))?;
+        .map_err(|error| anyhow!("`rsync` command failed: {error}"))?;
 
     println!("Done!");
 
