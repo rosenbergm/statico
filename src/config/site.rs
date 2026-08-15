@@ -15,4 +15,7 @@ pub struct SiteConfig {
 
     /// The path from where to copy the files to the server.
     pub output_dir: PathBuf,
+
+    /// Optional command to run before copying the files to the server.
+    pub build_command: Option<String>,
 }

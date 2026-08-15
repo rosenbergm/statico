@@ -37,6 +37,15 @@ pub fn push() -> anyhow::Result<()> {
         .find(|s| s.alias == site_config.server)
         .ok_or_else(|| anyhow!("Could not find server in global config."))?;
 
+    // optionally build the site
+    if let Some(build_cmd) = site_config.build_command {
+        Command::new("sh")
+            .arg("-c")
+            .arg(build_cmd)
+            .status()
+            .map_err(|error| anyhow!("Could not run build command: {error}"))?;
+    }
+
     let build_dir = cwd.join(&site_config.output_dir);
 
     if !build_dir.exists() {
